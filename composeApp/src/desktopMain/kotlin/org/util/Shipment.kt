@@ -5,7 +5,7 @@ class Shipment(public var status:String, public var id: String, public var expec
     private val _notes: MutableList<String> = mutableListOf()
     val notes
         get() = _notes.map { it }.toMutableList()
-    private val _updateHistory: MutableList<ShipmentUpdate> = mutableListOf()
+    private val _updateHistory: MutableList<StatusChange> = mutableListOf()
     val updateHistory
         get() = _updateHistory.map { it }.toMutableList()
 
@@ -13,8 +13,9 @@ class Shipment(public var status:String, public var id: String, public var expec
         _notes.add(note)
     }
 
-    public fun addUpdate(shipmentUpdate: ShipmentUpdate){
-        updateHistory.add(shipmentUpdate)
+    public fun addStatus(status: String, timeStamp: Long){
+        updateHistory.add(StatusChange(this.status, status, timeStamp))
+        this.status = status
     }
 
 }
