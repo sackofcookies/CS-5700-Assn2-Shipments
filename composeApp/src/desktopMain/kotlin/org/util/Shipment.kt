@@ -1,6 +1,6 @@
 package org.util
 
-class Shipment(public var status:String, public var id: String, public var expectedDeliveryDateTimestamp: Long, public var currentLocation: String){
+class Shipment(public var status:String, public var id: String, public var expectedDeliveryDateTimestamp: Long, public var currentLocation: String): Subject<ShipmnetObserver>{
 
     private val _notes: MutableList<String> = mutableListOf()
     val notes
@@ -9,6 +9,8 @@ class Shipment(public var status:String, public var id: String, public var expec
     val updateHistory
         get() = _updateHistory.map { it }.toMutableList()
 
+    private val observers = mutableListOf<ShipmnetObserver>()
+
     public fun addNote(note: String){
         _notes.add(note)
     }
@@ -16,6 +18,16 @@ class Shipment(public var status:String, public var id: String, public var expec
     public fun addStatus(status: String, timeStamp: Long){
         updateHistory.add(StatusChange(this.status, status, timeStamp))
         this.status = status
+    }
+
+    override fun unregisterObserver(observer: ShipmnetObserver){
+        observers.remove(observer)
+    }
+    override fun registerObserver(observer: ShipmnetObserver){
+        observers.add(observer)
+    }
+    override fun notifyObservers(){
+        observers.forEach { it.update(this) }
     }
 
 }
