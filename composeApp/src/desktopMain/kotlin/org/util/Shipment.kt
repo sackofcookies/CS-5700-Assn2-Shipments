@@ -1,6 +1,6 @@
 package org.util
 
-class Shipment(public var status:String, public val id: String, public var expectedDeliveryDateTimestamp: Long, currentLocation: String): Subject<ShipmnetObserver>{
+class Shipment(public var status:String, public val id: String, public var expectedDeliveryDateTimestamp: Long = 0, currentLocation: String= ""): Subject<ShipmnetObserver>{
 
     private val _notes: MutableList<String> = mutableListOf()
     val notes
