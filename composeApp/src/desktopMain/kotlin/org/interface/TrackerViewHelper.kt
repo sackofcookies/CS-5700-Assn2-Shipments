@@ -24,6 +24,7 @@ class TrackerViewHelper(shipment: Shipment): ShipmnetObserver{
     val shipmentUpdateHistory = remember{mutableStateListOf<StatusChange>()}
     var expectedShipmentDeliveryDate = remember{mutableStateOf<Long>(shipment.expectedDeliveryDateTimestamp)}
     var shipmentStatus = remember{mutableStateOf<String>(shipment.status)}
+    var shipmentLocation = remember{mutableStateOf<String>(shipment.currentLocation)}
     init{
         shipment.notes.forEach {shipmentNotes.add(it)}
         shipment.updateHistory.forEach {shipmentUpdateHistory.add(it)}
@@ -36,14 +37,20 @@ class TrackerViewHelper(shipment: Shipment): ShipmnetObserver{
         shipment.updateHistory.forEach {shipmentUpdateHistory.add(it)}
         expectedShipmentDeliveryDate.value = shipment.expectedDeliveryDateTimestamp
         shipmentStatus.value = shipment.status
+        shipmentLocation.value = shipment.currentLocation
     }
 
     @Composable
     public fun compose(){
         Column {
-            Text(shipmentId)
-            Text("Status: " + shipmentStatus)
-            Text("Expected Delivery Date: " + java.util.Date(expectedShipmentDeliveryDate))
+            Text("Tracking Shipment: " + shipmentId)
+            Text("Status: " + shipmentStatus.value)
+            Text("Location: " + shipmentLocation.value)
+            Text("Expected Delivery Date: " + expectedShipmentDeliveryDate.value)
+            Text("Status Updates:")
+            shipmentUpdateHistory.forEach { Text("Shipment went from " + it.previousStatus + " to " + it.newStatus + " on " + it.timeStamp) }
+            Text("Notes:")
+            shipmentNotes.forEach { Text(it) }
         }
     }
 }
