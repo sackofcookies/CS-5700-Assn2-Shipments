@@ -106,4 +106,168 @@ class TrackingSimulatorTest {
         assertEquals("delivered", update.newStatus)
         assertEquals(1000L, update.timeStamp)
     }
+    @Test
+    fun testInvalidCreatedLine() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("created") // missing id
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        assertNull(simulator.findShipment("")) // nothing created
+        file.delete()
+    }}
+
+    @Test
+    fun testInvalidLocationLine() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("location,abc123,1000") // missing location
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        file.delete()
+    }}
+
+    @Test
+    fun testInvalidNoteLine() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("noteadded,abc123,1000") // missing note
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        file.delete()
+    }}
+
+    @Test
+    fun testInvalidStatusLine() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("delivered,abc123") // missing timestamp
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        file.delete()
+    }}
+
+    @Test
+    fun testInvalidShippedLine() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("shipped,abc123,1000") // missing expected delivery timestamp
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        file.delete()
+    }}
+
+    @Test
+    fun testNonNumericTimestamp() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText(
+            """
+            created,abc123
+            location,abc123,notANumber,Somewhere
+            """.trimIndent()
+        )
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        val shipment = simulator.findShipment("abc123")
+        assertNotNull(shipment)
+        assertEquals("", shipment.currentLocation) // location update skipped
+        file.delete()
+    }}
+
+    @Test
+    fun testInvalidExpectedDelivery() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText(
+            """
+            created,abc123
+            shipped,abc123,1000,notANumber
+            """.trimIndent()
+        )
+        val simulator = TrackingSimulator()
+        val job = launch(){
+            simulator.runSimulation(file, 0)
+        }
+        job.join()
+        val shipment = simulator.findShipment("abc123")
+        assertNotNull(shipment)
+        assertEquals(0, shipment.expectedDeliveryDateTimestamp) // update skipped
+        file.delete()
+    }}
+
+    @Test
+    fun testUnknownCommandIsIgnored() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("foobar,abc123,1000,whatever")
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        assertNull(simulator.findShipment("abc123")) // command ignored
+        file.delete()
+    }}
+
+    @Test
+    fun testDelayedStatusUpdate() {
+        val shipment = runSimulatorWithLine("delayed,shipment1,2000,3000")
+        assertNotNull(shipment)
+        assertEquals("delayed", shipment.status)
+        assertEquals(3000L, shipment.expectedDeliveryDateTimestamp)
+    }
+
+    @Test
+    fun testLocationUpdateWithoutShipment() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("location,missingId,1234,City")
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        assertNull(simulator.findShipment("missingId"))
+        file.delete()
+    }}
+    @Test
+    fun testLocationUpdateInvalidTimestamp() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("location,shipment1,notATime,City")
+        val simulator = TrackingSimulator()
+        simulator.addShipment(Shipment("created", "shipment1"))
+        simulator.runSimulation(file, 0)
+        val shipment = simulator.findShipment("shipment1")
+        assertNotNull(shipment)
+        assertEquals("", shipment.currentLocation)
+        file.delete()
+    }}
+    @Test
+    fun testShippedButShipmentMissing() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText("shipped,notfound,1000,2000")
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        assertNull(simulator.findShipment("notfound"))
+        file.delete()
+    }}
+    @Test
+    fun testShippedWithInvalidExpected() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText(
+            """
+            created,shipment1
+            shipped,shipment1,1000,notanumber
+            """.trimIndent()
+        )
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        val shipment = simulator.findShipment("shipment1")
+        assertNotNull(shipment)
+        assertEquals(0, shipment.expectedDeliveryDateTimestamp)
+        assertEquals("created", shipment.status)
+        file.delete()
+    }}
+    @Test
+    fun testShippedWithInvalidTimestamp() {runBlocking {
+        val file = createTempFile().toFile()
+        file.writeText(
+            """
+            created,shipment1
+            shipped,shipment1,notATime,3000
+            """.trimIndent()
+        )
+        val simulator = TrackingSimulator()
+        simulator.runSimulation(file, 0)
+        val shipment = simulator.findShipment("shipment1")
+        assertNotNull(shipment)
+        assertEquals(0, shipment.expectedDeliveryDateTimestamp)
+        file.delete()
+    }}
 }
