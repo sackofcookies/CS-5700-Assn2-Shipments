@@ -20,11 +20,11 @@ private val format = SimpleDateFormat("HH:mm:ss dd/MM/yyyy")
 
 class TrackerViewHelper(shipment: Shipment): ShipmnetObserver{
     val shipmentId: String = shipment.id
-    val shipmentNotes = remember{mutableStateListOf<String>()}
-    val shipmentUpdateHistory = remember{mutableStateListOf<StatusChange>()}
-    var expectedShipmentDeliveryDate = remember{mutableStateOf<Long>(shipment.expectedDeliveryDateTimestamp)}
-    var shipmentStatus = remember{mutableStateOf<String>(shipment.status)}
-    var shipmentLocation = remember{mutableStateOf<String>(shipment.currentLocation)}
+    val shipmentNotes = mutableStateListOf<String>()
+    val shipmentUpdateHistory = mutableStateListOf<StatusChange>()
+    var expectedShipmentDeliveryDate = mutableStateOf<Long>(shipment.expectedDeliveryDateTimestamp)
+    var shipmentStatus = mutableStateOf<String>(shipment.status)
+    var shipmentLocation = mutableStateOf<String>(shipment.currentLocation)
     init{
         shipment.notes.forEach {shipmentNotes.add(it)}
         shipment.updateHistory.forEach {shipmentUpdateHistory.add(it)}
