@@ -1,4 +1,4 @@
-package org.interface
+package org.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image

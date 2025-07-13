@@ -1,4 +1,4 @@
-package org.interface
+package org.ui
 
 import org.util.ShipmnetObserver
 import org.util.Shipment

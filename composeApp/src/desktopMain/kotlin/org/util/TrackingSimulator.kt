@@ -2,6 +2,8 @@ package org.util
 
 import java.io.File
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+
 
 
 class TrackingSimulator{
@@ -11,7 +13,7 @@ class TrackingSimulator{
     fun addShipment(shipment: Shipment) = shipments.put(shipment.id, shipment)
 
     suspend fun runSimulation(file: File){
-        file.forEachLine() { 
+        file.forEachLine() runBlocking{ 
             val entries = it.split(",", limit=3)
             if (entries[0] == "created"){
                 this.addShipment(Shipment("created", entries[1]))
@@ -28,7 +30,7 @@ class TrackingSimulator{
                 }
                 
             }
-            delay(1000)
+            delay(1000L)
         }
     }
 }

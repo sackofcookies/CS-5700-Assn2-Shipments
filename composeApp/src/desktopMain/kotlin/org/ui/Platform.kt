@@ -1,4 +1,4 @@
-package org.example.project
+package org.ui
 
 class JVMPlatform {
     val name: String = "Java ${System.getProperty("java.version")}"

@@ -1,4 +1,4 @@
-package org.example.project
+package org.ui
 
 class Greeting {
     private val platform = getPlatform()
@@ -7,3 +7,4 @@ class Greeting {
         return "Hello, ${platform.name}!"
     }
 }
+
