@@ -14,28 +14,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.remember
+
+import org.util.Shipment
+import org.util.LocationUpdate
+import org.util.ExpectedDeliveryUpdate
+import org.util.NoteUpdate
 
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
+        val shipment = remember{Shipment("created", "1", 500, "test")}
+        val observer = remember{TrackerViewHelper(shipment)}
         Column(
             modifier = Modifier
                 .safeContentPadding()
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Compose: $greeting")
-                }
-            }
+            Button(onClick = {NoteUpdate("test", 1000).applyUpdate(shipment)}) { Text("test") }
+            observer.compose()
         }
     }
 }

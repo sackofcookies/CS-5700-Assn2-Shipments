@@ -1,19 +1,31 @@
 package org.util
 
-class Shipment(public var status:String, public val id: String, public var expectedDeliveryDateTimestamp: Long = 0, currentLocation: String= ""): Subject<ShipmnetObserver>{
+class Shipment(status:String, public val id: String, expectedDeliveryDateTimestamp: Long = 0, currentLocation: String= ""): Subject<ShipmnetObserver>{
 
     private val _notes: MutableList<String> = mutableListOf()
     val notes
         get() = _notes.map { it }.toMutableList()
     private val _updateHistory: MutableList<StatusChange> = mutableListOf()
-    val updateHistory
+    val updateHistory: MutableList<StatusChange>
         get() = _updateHistory.map { it }.toMutableList()
 
     private val observers = mutableListOf<ShipmnetObserver>()
 
     public var currentLocation: String = currentLocation
         set(location){
-            currentLocation = location
+            field = location
+            this.notifyObservers()
+        }
+
+    public var status:String = status
+        set(status){
+            field = status
+            this.notifyObservers()
+        }
+
+    public var expectedDeliveryDateTimestamp: Long = expectedDeliveryDateTimestamp
+        set(date){
+            field = date
             this.notifyObservers()
         }
 
@@ -23,7 +35,7 @@ class Shipment(public var status:String, public val id: String, public var expec
     }
 
     public fun addStatus(status: String, timeStamp: Long){
-        updateHistory.add(StatusChange(this.status, status, timeStamp))
+        _updateHistory.add(StatusChange(this.status, status, timeStamp))
         this.status = status
         this.notifyObservers()
     }

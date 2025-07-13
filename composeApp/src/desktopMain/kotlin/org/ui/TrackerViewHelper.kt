@@ -28,6 +28,7 @@ class TrackerViewHelper(shipment: Shipment): ShipmnetObserver{
     init{
         shipment.notes.forEach {shipmentNotes.add(it)}
         shipment.updateHistory.forEach {shipmentUpdateHistory.add(it)}
+        shipment.registerObserver(this)
     }
 
     override fun update(shipment: Shipment){
@@ -38,6 +39,7 @@ class TrackerViewHelper(shipment: Shipment): ShipmnetObserver{
         expectedShipmentDeliveryDate.value = shipment.expectedDeliveryDateTimestamp
         shipmentStatus.value = shipment.status
         shipmentLocation.value = shipment.currentLocation
+        println(shipment.updateHistory.size)
     }
 
     @Composable

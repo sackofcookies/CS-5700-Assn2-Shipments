@@ -38,11 +38,11 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "org.interface.MainKt"
+        mainClass = "org.ui.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.interface"
+            packageName = "org.ui"
             packageVersion = "1.0.0"
         }
     }
