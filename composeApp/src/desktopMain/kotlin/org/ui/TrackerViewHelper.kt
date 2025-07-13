@@ -48,7 +48,6 @@ class TrackerViewHelper(shipment: Shipment): ShipmnetObserver{
         expectedShipmentDeliveryDate.value = shipment.expectedDeliveryDateTimestamp
         shipmentStatus.value = shipment.status
         shipmentLocation.value = shipment.currentLocation
-        println(shipment.updateHistory.size)
     }
 
     @Composable
